@@ -32,6 +32,8 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 
 /**
  * A Layout that arranges its children around its center. The arc can be set by
@@ -64,16 +66,14 @@ public class ArcLayout extends ViewGroup {
 
     private float mToDegrees = DEFAULT_TO_DEGREES;
 
-    private static final int MIN_RADIUS = 100;
+    private static final int MIN_RADIUS = 80; // Child改變半徑
 
     /* the distance between the layout's center and any child's center */
     private int mRadius;
 
     private boolean mExpanded = false;
     
-    
-    private static boolean isShrink = false;
-    
+    static boolean isShrink = false;
 
     public ArcLayout(Context context) {
         super(context);
@@ -117,18 +117,14 @@ public class ArcLayout extends ViewGroup {
                 (int) (childCenterX + size / 2), (int) (childCenterY + size / 2));
     }
 
-
-    
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.i("shinhua", "ArcLayout onMeasure(int widthMeasureSpec, int heightMeasureSpec)");
-    	
+        Log.i("shinhua", "onMeasure(int widthMeasureSpec, int heightMeasureSpec)");
     	
         final int radius = mRadius = computeRadius(Math.abs(mToDegrees - mFromDegrees), getChildCount(), mChildSize,
                 mChildPadding, MIN_RADIUS);
         final int size = radius * 2 + mChildSize + mChildPadding + mLayoutPadding * 2;
 
-        
         Log.i("shinhua", "onMeasure size: " + size);
         setMeasuredDimension(size, size);
 
@@ -141,16 +137,17 @@ public class ArcLayout extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        Log.i("shinhua", "ArcLayout onLayout(boolean changed, int l, int t, int r, int b)");
-        final int centerX = getWidth() / 2;
-        final int centerY = getHeight() / 2;
+//        final int centerX = getWidth() / 2;
+//        final int centerY = getHeight() / 2;
+    	final int centerX = getWidth() / 2;
+        final int centerY = getHeight() * 3 / 4;
         final int radius = mExpanded ? mRadius : 0;
+ 
         
+        Log.i("shinhua", "onLayout(boolean changed, int l, int t, int r, int b)");   
 		Log.i("shinhua", "centerX: " + centerX + " centerY: " + centerY
 				+ " gw: " + getWidth() + " gh: " + getHeight());
         
-		int testX = 640;
-		int testY = 376;
 		
         final int childCount = getChildCount();
         final float perDegrees = (mToDegrees - mFromDegrees) / (childCount - 1);
@@ -193,16 +190,43 @@ public class ArcLayout extends ViewGroup {
             long startOffset, long duration, Interpolator interpolator) {
     	
     	// Child item expand Animation 
-    	Log.i("shinhua", "createExpandAnimation");
+    	Log.i("shinhua", "createExpandAnimation2");
     	
         //Animation animation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 720);
-        Animation animation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 0);
-        animation.setStartOffset(startOffset);
-        animation.setDuration(duration);
-        animation.setInterpolator(interpolator);
-        animation.setFillAfter(true);
+        //Animation animation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 0);
 
-        return animation;
+//        Animation animation = new TranslateAnimation(0, toXDelta, 0, toYDelta);
+//        animation.setStartOffset(startOffset);
+//        animation.setDuration(duration);
+//        animation.setInterpolator(interpolator);
+//        animation.setFillAfter(true);
+//
+//        return animation;
+    	AnimationSet animationSet = new AnimationSet(false);
+        animationSet.setFillAfter(true);
+
+		Animation alphaAnimation = new AlphaAnimation(0.0f, 1.0f);
+        animationSet.addAnimation(alphaAnimation);
+        
+        Animation scaleAnimation = new ScaleAnimation(0, 50, 0, 50,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        animationSet.addAnimation(scaleAnimation);
+      
+        
+		Animation animation = new TranslateAnimation(0, toXDelta, 0, toYDelta);
+		animation.setStartOffset(startOffset);
+		animation.setDuration(duration);
+		animation.setInterpolator(interpolator);
+		animation.setFillAfter(true);
+        animationSet.addAnimation(animation);
+        
+//        Animation sacleanimation = new ScaleAnimation(0, toXDelta, 0,
+//        		toYDelta, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+//        
+//        animationSet.addAnimation(sacleanimation);
+        
+        return animationSet;
+        
     }
 
     private static Animation createShrinkAnimation(float fromXDelta, float toXDelta, float fromYDelta, float toYDelta,
@@ -228,7 +252,8 @@ public class ArcLayout extends ViewGroup {
         animationSet.addAnimation(rotateAnimation);
 
         //Animation translateAnimation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 360, 720);
-        Animation translateAnimation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 0);
+        //Animation translateAnimation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 0);
+        Animation translateAnimation = new TranslateAnimation(0, toXDelta, 0, toYDelta);
         translateAnimation.setStartOffset(startOffset + preDuration);
         translateAnimation.setDuration(duration - preDuration);
         translateAnimation.setInterpolator(interpolator);
@@ -241,7 +266,7 @@ public class ArcLayout extends ViewGroup {
         alphaAnimation.setDuration(1000);
         animationSet.addAnimation(alphaAnimation);
         
-        AnimationSet disappear = new AnimationSet(false);
+        isShrink = true;
 
         return animationSet;
     }
@@ -249,7 +274,8 @@ public class ArcLayout extends ViewGroup {
     private void bindChildAnimation(final View child, final int index, final long duration) {
         final boolean expanded = mExpanded;
         final int centerX = getWidth() / 2;
-        final int centerY = getHeight() / 2;
+        //final int centerY = getHeight() / 2;
+        final int centerY = getHeight() * 3 / 4;
         final int radius = expanded ? 0 : mRadius;
 
         final int childCount = getChildCount();
@@ -259,7 +285,8 @@ public class ArcLayout extends ViewGroup {
         final int toXDelta = frame.left - child.getLeft();
         final int toYDelta = frame.top - child.getTop();
 
-        Interpolator interpolator = mExpanded ? new AccelerateInterpolator() : new OvershootInterpolator(1.5f);
+//        Interpolator interpolator = mExpanded ? new AccelerateInterpolator() : new OvershootInterpolator(1.5f);
+        Interpolator interpolator = new AccelerateInterpolator();
         
         final long startOffset = computeStartOffset(childCount, mExpanded, index, 0.1f, duration, interpolator);
 
@@ -276,17 +303,6 @@ public class ArcLayout extends ViewGroup {
 
             @Override
             public void onAnimationStart(Animation animation) {
-            	
-//                if (isLast) {
-//                    postDelayed(new Runnable() {
-//
-//                        @Override
-//                        public void run() {
-//                            onAllAnimationsEnd();
-//                        }
-//                    }, 0);
-//                }
-            	
 
             }
 
@@ -298,6 +314,7 @@ public class ArcLayout extends ViewGroup {
             @Override
             public void onAnimationEnd(Animation animation) {
                 if (isLast) {
+                	Log.i("shinhua", "onAnimationEnd");
                     postDelayed(new Runnable() {
 
                         @Override
@@ -305,10 +322,8 @@ public class ArcLayout extends ViewGroup {
                             onAllAnimationsEnd();
                         }
                     }, 0);
+                    
                 }
-                
-
-                
             }
         });
 
@@ -345,7 +360,7 @@ public class ArcLayout extends ViewGroup {
     }
 
     /**
-     * switch between expansion and shrinkage
+     * switch between expansion and shrink
      * 
      * @param showAnimation
      */
@@ -372,11 +387,10 @@ public class ArcLayout extends ViewGroup {
         for (int i = 0; i < childCount; i++) {
             getChildAt(i).clearAnimation();
         }
-        
-        // shinhua, EndAnimation
-
-        
-        
+        if(isShrink){
+        	setChildSize(1);
+        	isShrink = false;
+        }
         requestLayout();
     }   
     

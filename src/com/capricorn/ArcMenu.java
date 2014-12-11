@@ -140,21 +140,16 @@ public class ArcMenu extends RelativeLayout {
 	public void changeChildItemsize(ArcLayout ArcLayout, int itor) {
 		switch (itor) {
 		case 0:
-			ArcLayout.setChildSize(10);
+			ArcLayout.setChildSize(0);
 			break;
 
 		case 1:
-			ArcLayout.setChildSize(60);
+			ArcLayout.setChildSize(50);
 			break;
 
 		}
 	}
     
-    
-    
-    
-    
-
     public void addItem(View item, OnClickListener listener) {
         mArcLayout.addView(item);
         item.setOnClickListener(getItemClickListener(listener));
