@@ -81,7 +81,6 @@ public class ArcLayout extends ViewGroup {
 
     public ArcLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        Log.i("shinhua", "ArcLayout(Context context, AttributeSet attrs)");
         
         if (attrs != null) { // Judge XML attributes
             TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ArcLayout, 0, 0);
@@ -119,13 +118,10 @@ public class ArcLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.i("shinhua", "onMeasure(int widthMeasureSpec, int heightMeasureSpec)");
-    	
         final int radius = mRadius = computeRadius(Math.abs(mToDegrees - mFromDegrees), getChildCount(), mChildSize,
                 mChildPadding, MIN_RADIUS);
         final int size = radius * 2 + mChildSize + mChildPadding + mLayoutPadding * 2;
 
-        Log.i("shinhua", "onMeasure size: " + size);
         setMeasuredDimension(size, size);
 
         final int count = getChildCount();
@@ -142,13 +138,7 @@ public class ArcLayout extends ViewGroup {
     	final int centerX = getWidth() / 2;
         final int centerY = getHeight() * 3 / 4;
         final int radius = mExpanded ? mRadius : 0;
- 
-        
-        Log.i("shinhua", "onLayout(boolean changed, int l, int t, int r, int b)");   
-		Log.i("shinhua", "centerX: " + centerX + " centerY: " + centerY
-				+ " gw: " + getWidth() + " gh: " + getHeight());
-        
-		
+
         final int childCount = getChildCount();
         final float perDegrees = (mToDegrees - mFromDegrees) / (childCount - 1);
 
@@ -190,8 +180,6 @@ public class ArcLayout extends ViewGroup {
             long startOffset, long duration, Interpolator interpolator) {
     	
     	// Child item expand Animation 
-    	Log.i("shinhua", "createExpandAnimation2");
-    	
         //Animation animation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 720);
         //Animation animation = new RotateAndTranslateAnimation(0, toXDelta, 0, toYDelta, 0, 0);
 
@@ -233,7 +221,7 @@ public class ArcLayout extends ViewGroup {
             long startOffset, long duration, Interpolator interpolator) {
     	
     	// Child item expand Animation 
-    	Log.i("shinhua", "CreateShrink");   	
+ 	
     	
     	
     	AnimationSet animationSet = new AnimationSet(false);
@@ -314,7 +302,6 @@ public class ArcLayout extends ViewGroup {
             @Override
             public void onAnimationEnd(Animation animation) {
                 if (isLast) {
-                	Log.i("shinhua", "onAnimationEnd");
                     postDelayed(new Runnable() {
 
                         @Override

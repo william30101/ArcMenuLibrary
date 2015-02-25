@@ -56,15 +56,13 @@ public class ArcMenu extends RelativeLayout {
     
     public ArcMenu(Context context) {
         super(context);
-        Log.i("shinhua", "ArcMenu(Context context)");
-           init(context);
+        init(context);
 
     }
 
     public ArcMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
         
-        Log.i("shinhua", "ArcMenu(Context context ,  AttributeSet attrs)"); 
         init(context);
         applyAttrs(attrs);
         
@@ -90,14 +88,6 @@ public class ArcMenu extends RelativeLayout {
          
             		// Shinhua add change child size
             		changeChildItemsize(mArcLayout, 1);
-                	
-                	
-/*                	else if(!expandChild){
-                		changeChildItemsize(mArcLayout, 0);
-                		expandChild = !expandChild;
-                	}*/
-                    
-                    
  
                     mHintView.startAnimation(createHintSwitchAnimation(mArcLayout.isExpanded()));
  
@@ -125,8 +115,6 @@ public class ArcMenu extends RelativeLayout {
 
             int defaultChildSize = mArcLayout.getChildSize();
             int newChildSize = a.getDimensionPixelSize(R.styleable.ArcLayout_childSize, defaultChildSize);
-            
-            Log.i("shinhua", "newCdhildSize: " + newChildSize);
             
             newChildSize = 0;
             
